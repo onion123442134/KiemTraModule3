@@ -32,12 +32,13 @@ public class RoomController extends HttpServlet {
             case "list": {
                 String keyword = req.getParameter("keyword");
                 req.setAttribute("rooms", service.getAll(keyword));
-                req.getRequestDispatcher("list.jsp").forward(req, resp);
-                break;
-            }
 
-            case "form": {
-                req.getRequestDispatcher("form.jsp").forward(req, resp);
+                req.setAttribute("tenantName", "");
+                req.setAttribute("phone", "");
+                req.setAttribute("startDate", "");
+                req.setAttribute("paymentId", "");
+                req.setAttribute("note", "");
+                req.getRequestDispatcher("list.jsp").forward(req, resp);
                 break;
             }
 
@@ -89,8 +90,7 @@ public class RoomController extends HttpServlet {
             String t = tenantName.trim();
             if (t.length() < 5 || t.length() > 50) {
                 errors.put("tenantName", "Độ dài tên phải từ 5 đến 50 ký tự.");
-            }
-            else if (!t.matches("^[\\p{L}\\s]+$")) {
+            } else if (!t.matches("^[\\p{L}\\s]+$")) {
                 errors.put("tenantName", "Tên chỉ được chứa chữ cái và dấu tiếng Việt, không được chứa số hoặc ký tự đặc biệt.");
             }
         }
@@ -145,7 +145,11 @@ public class RoomController extends HttpServlet {
             req.setAttribute("startDate", startDateStr);
             req.setAttribute("paymentId", paymentIdStr);
             req.setAttribute("note", note);
-            req.getRequestDispatcher("form.jsp").forward(req, resp);
+
+            String keyword = req.getParameter("keyword");
+            req.setAttribute("rooms", service.getAll(keyword));
+
+            req.getRequestDispatcher("list.jsp").forward(req, resp);
             return;
         }
 
@@ -157,7 +161,7 @@ public class RoomController extends HttpServlet {
         r.setNote(note == null ? "" : note.trim());
 
         service.add(r);
+
         resp.sendRedirect("room?action=list");
     }
-
 }

@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Quản lý thuê phòng trọ</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <style>
@@ -13,12 +14,14 @@
         h2 {
             font-weight: 700;
             color: #0d6efd;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 30px;
         }
 
         .table {
             border-radius: 8px;
             overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
         .table thead {
@@ -27,13 +30,15 @@
             font-weight: 600;
         }
 
-        .table tbody tr {
-            transition: all 0.3s;
-        }
-
         .table tbody tr:hover {
             background-color: #e7f1ff;
             transform: scale(1.01);
+            transition: 0.3s;
+        }
+
+        .form-control, .form-select, textarea {
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
         }
 
         .btn {
@@ -41,58 +46,87 @@
             transition: all 0.2s;
         }
 
-        .btn-primary:hover {
-            background-color: #0b5ed7;
+        .card-body {
+            background-color: #ffffff;
         }
 
-        .btn-success:hover {
-            background-color: #198754;
+        .text-danger {
+            font-size: 0.875rem;
         }
 
-        .btn-danger:hover {
-            background-color: #dc3545;
-        }
-
-        .form-control {
-            border-radius: 50px;
-            padding: 0.5rem 1rem;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin-top: 30px;
-        }
-
-        input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-        }
-
-        .table {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        @media (max-width: 768px) {
+            .form-inline input, .form-inline select, .form-inline button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
         }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <h2 class="mb-4 text-center">Quản lý thuê phòng trọ</h2>
+    <h2>Quản lý thuê phòng trọ</h2>
 
-    <!-- Form tìm kiếm + tạo mới -->
-    <form class="mb-3 d-flex align-items-center" method="get" action="room">
-        <input type="hidden" name="action" value="list">
-        <input type="text" name="keyword" placeholder="Tìm kiếm theo mã, tên hoặc SĐT..."
-               class="form-control w-50 me-2" value="${param.keyword}">
-        <button class="btn btn-primary me-2">Tìm</button>
-        <a href="room?action=form" class="btn btn-success me-2">Tạo mới</a>
-    </form>
+    <!-- Nút hiển thị form tạo mới -->
+    <button class="btn btn-success mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#createForm" aria-expanded="${not empty errors}" aria-controls="createForm">
+        Tạo mới
+    </button>
 
-    <!-- Form xóa -->
+    <!-- Form tạo mới -->
+    <div class="collapse mb-4 ${not empty errors ? 'show' : ''}" id="createForm">
+        <div class="card card-body shadow-sm">
+            <form method="post" action="room">
+                <div class="mb-3">
+                    <label class="form-label">Tên người thuê</label>
+                    <input type="text" name="tenantName" class="form-control" required
+                           value="${tenantName != null ? tenantName : ''}">
+                    <c:if test="${not empty errors['tenantName']}">
+                        <div class="text-danger">${errors['tenantName']}</div>
+                    </c:if>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Số điện thoại</label>
+                    <input type="text" name="phone" class="form-control" required
+                           value="${phone != null ? phone : ''}">
+                    <c:if test="${not empty errors['phone']}">
+                        <div class="text-danger">${errors['phone']}</div>
+                    </c:if>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Ngày bắt đầu</label>
+                    <input type="date" name="startDate" class="form-control" required
+                           value="${startDate != null ? startDate : ''}">
+                    <c:if test="${not empty errors['startDate']}">
+                        <div class="text-danger">${errors['startDate']}</div>
+                    </c:if>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Hình thức thanh toán</label>
+                    <select name="paymentId" class="form-select" required>
+                        <option value="">-- Chọn --</option>
+                        <option value="1" ${paymentId == '1' ? 'selected' : ''}>Theo tháng</option>
+                        <option value="2" ${paymentId == '2' ? 'selected' : ''}>Theo quý</option>
+                        <option value="3" ${paymentId == '3' ? 'selected' : ''}>Theo năm</option>
+                    </select>
+                    <c:if test="${not empty errors['paymentId']}">
+                        <div class="text-danger">${errors['paymentId']}</div>
+                    </c:if>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Ghi chú</label>
+                    <textarea name="note" class="form-control">${note != null ? note : ''}</textarea>
+                    <c:if test="${not empty errors['note']}">
+                        <div class="text-danger">${errors['note']}</div>
+                    </c:if>
+                </div>
+                <button type="submit" class="btn btn-success">Lưu</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bảng danh sách -->
     <form method="get" action="room">
         <input type="hidden" name="action" value="delete">
-
-        <table class="table table-bordered table-hover bg-white">
+        <table class="table table-bordered table-hover">
             <thead class="text-center">
             <tr>
                 <th>Chọn</th>
@@ -110,12 +144,9 @@
                     <td colspan="7" class="text-center text-muted">Không có dữ liệu</td>
                 </tr>
             </c:if>
-
             <c:forEach var="r" items="${rooms}">
                 <tr>
-                    <td class="text-center">
-                        <input type="checkbox" name="roomId" value="${r.roomId}">
-                    </td>
+                    <td class="text-center"><input type="checkbox" name="roomId" value="${r.roomId}"></td>
                     <td class="fw-bold">PT-${r.roomId}</td>
                     <td>${r.tenantName}</td>
                     <td>${r.phone}</td>
@@ -126,12 +157,12 @@
             </c:forEach>
             </tbody>
         </table>
-
         <div class="text-end">
             <button type="submit" class="btn btn-danger mt-2">Xóa</button>
         </div>
     </form>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
