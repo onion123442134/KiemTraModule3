@@ -65,7 +65,12 @@
 <body>
 <div class="container">
     <h2>Quản lý thuê phòng trọ</h2>
-
+    <form class="mb-3 d-flex align-items-center" method="get" action="room">
+        <input type="hidden" name="action" value="list">
+        <input type="text" name="keyword" placeholder="Tìm kiếm theo Mã phòng, Tên hoặc SĐT..."
+               class="form-control me-2" value="${param.keyword}">
+        <button type="submit" class="btn btn-primary">Tìm</button>
+    </form>
     <!-- Nút hiển thị form tạo mới -->
     <button class="btn btn-success mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#createForm" aria-expanded="${not empty errors}" aria-controls="createForm">
         Tạo mới
